@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block title %}Well hello there!{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <h1>Welcome!</h1>
+        <a href="{% url 'courses:list' %}" class="link">Check out our latest courses</a>
+    </div>
+    <div class="row">
+        {% if user.is_authenticated %}
+        <hr>
+        <a href="{% url 'courses:course_create' %}" class="button">New Course</a>
+        {% endif %}
+    </div>
+{% endblock %}
+

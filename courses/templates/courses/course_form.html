@@ -1,0 +1,16 @@
+{% extends "courses/layout.html" %}
+{% load course_extras %}
+
+
+{% block content %}
+<div class="row columns">
+    {{ block.super }}
+    <h1>{{ form.instance.title|default:"Make a course" }}</h1>
+    <form method="POST" action="">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" class="button" value="Save">
+    </form>
+</div>
+{% endblock %}
+
