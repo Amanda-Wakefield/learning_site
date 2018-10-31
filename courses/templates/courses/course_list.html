@@ -13,6 +13,9 @@
                     <h5><a href="{% url 'courses:detail' pk=course.pk %}">{{ course.title }}</a></h5>
                     <div class="card-copy">
                         {{ course.description }}
+                        {% if course.total_steps %}
+                        <p><strong>Steps:</strong>  {{ course.total_steps }}</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
