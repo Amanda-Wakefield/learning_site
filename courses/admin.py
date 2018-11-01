@@ -20,6 +20,8 @@ class CourseAdmin(admin.ModelAdmin):
 
     search_fields = ['title', 'description']
 
+    list_filter = ['created_at', 'published']
+
 
 class QuestionAdmin(admin.ModelAdmin):
     inlines = [AnswerInLine, ]
