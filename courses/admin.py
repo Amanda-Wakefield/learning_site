@@ -24,12 +24,13 @@ class CourseAdmin(admin.ModelAdmin):
 class QuestionAdmin(admin.ModelAdmin):
     inlines = [AnswerInLine, ]
 
+    search_fields = ['prompt']
 
 class QuizAdmin(admin.ModelAdmin):
     fields = ['course', 'title', 'description', 'order', 'total_questions']
 
 
-admin.site.register(models.Course)
+admin.site.register(models.Course, CourseAdmin)
 admin.site.register(models.Text)
 admin.site.register(models.Quiz, QuizAdmin)
 admin.site.register(models.MultipleChoiceQuestion, QuestionAdmin)
