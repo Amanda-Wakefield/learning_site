@@ -18,6 +18,10 @@
                         <a href="{{ step.get_absolute_url }}">{{ step.title }}</a>
                     </dt>
                     <dd>{{ step.description|markdown_to_html }}</dd>
+                    {% if step.question_set.all%}
+                    <dt>Total Questions</dt>
+                    <dd>{{ step.question_set.count }}</dd>
+                    {% endif %}
                 {% endfor %}
             </dl>
         </article>
