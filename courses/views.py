@@ -26,7 +26,7 @@ def course_list(request):
 def course_detail(request, pk):
     try:
         course = models.Course.objects.prefetch_related(
-            'quiz_set', 'text_set'
+            'quiz_set', 'text_set', 'quiz_set__question_set'
         ).get(pk=pk, published=True)
     except models.Course.DoesNotExist:
         raise Http404
@@ -50,11 +50,21 @@ def text_detail(request, course_pk, step_pk):
 
 
 def quiz_detail(request, course_pk, step_pk):
-    step = get_object_or_404(models.Quiz,
-                             course_id=course_pk,
-                             pk=step_pk,
-                             course__published=True)
-    return render(request, 'courses/quiz_detail.html', {'step': step})
+    try:
+        step = models.Quiz.objects.select_related(
+            'course'
+        ).prefetch_related(
+            'question_set',
+            'question_set__answer_set'
+        ).get(
+            course_id=course_pk,
+            pk=step_pk,
+            course__published=True
+        )
+    except models.Quiz.DoesNotExist:
+        raise Http404
+    else:
+        return render(request, 'courses/quiz_detail.html', {'step': step})
 
 
 @login_required
