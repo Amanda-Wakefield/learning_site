@@ -52,19 +52,29 @@ class CourseAdmin(admin.ModelAdmin):
 
     list_filter = ['created_at', 'published', YearListFilter]
 
+    list_display = ['title', 'created_at', 'published']
+
 
 class QuestionAdmin(admin.ModelAdmin):
     inlines = [AnswerInLine, ]
 
     search_fields = ['prompt']
 
+    list_display = ['prompt', 'quiz', 'order']
+
 class QuizAdmin(admin.ModelAdmin):
     fields = ['course', 'title', 'description', 'order', 'total_questions']
 
+
+class AnswerAdmin(admin.ModelAdmin):
+
+    search_fields = ['prompt']
+
+    list_display = ['question', 'text', 'correct']
 
 admin.site.register(models.Course, CourseAdmin)
 admin.site.register(models.Text)
 admin.site.register(models.Quiz, QuizAdmin)
 admin.site.register(models.MultipleChoiceQuestion, QuestionAdmin)
 admin.site.register(models.TrueFalseQuestion, QuestionAdmin)
-admin.site.register(models.Answer)
+admin.site.register(models.Answer, AnswerAdmin)
