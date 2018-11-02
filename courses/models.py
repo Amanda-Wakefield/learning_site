@@ -17,6 +17,11 @@ class Course(models.Model):
     def get_absolute_url(self):
         return reverse('courses:list')
 
+    def time_to_complete(self):
+        # we put the import statement here to avoid recursive imports
+        from courses.templatetags.course_extras import time_estimate
+        return '{} minutes'.format(time_estimate(len(self.description.split())))
+
 
 class Step(models.Model):
     title = models.CharField(max_length=255)
@@ -47,7 +52,7 @@ class Quiz(Step):
     times_taken = models.IntegerField(default=0, editable=False)
     
     class Meta:
-        verbose_name_plural = "Quizzes"
+        verbose_name_plural = "quizzes"
 
     def get_absolute_url(self):
         return reverse('courses:quiz', kwargs={

@@ -52,7 +52,7 @@ class CourseAdmin(admin.ModelAdmin):
 
     list_filter = ['created_at', 'published', YearListFilter]
 
-    list_display = ['title', 'created_at', 'published']
+    list_display = ['title', 'created_at', 'published', 'time_to_complete']
 
 
 class QuestionAdmin(admin.ModelAdmin):
