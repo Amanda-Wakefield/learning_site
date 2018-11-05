@@ -2,10 +2,14 @@ from itertools import chain
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 from django.db.models import Q, Count, Sum
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render
-from django.views.generic import ListView, DetailView
+from django.views.generic import(
+    ListView, DetailView,
+    CreateView, UpdateView, DeleteView
+)
 
 
 from . import forms
@@ -25,6 +29,11 @@ class CourseListView(ListView):
         context["total"] = self.queryset.aggregate(total=Sum('total_steps'))
         return context
 
+
+@method_decorator(login_required, name='dispatch')
+class CourseCreate(CreateView):
+    fields = ("title", "description", "teacher", "subject", "status")
+    model = models.Course
 
 # These are function based views
 
@@ -70,20 +79,6 @@ def quiz_detail(request, course_pk, step_pk):
         raise Http404
     else:
         return render(request, 'courses/quiz_detail.html', {'step': step})
-
-
-@login_required
-def course_create(request):  ##### go back and add a get_or_create
-    form = forms.CourseForm()
-    if request.method == 'POST':
-        form = forms.CourseForm(request.POST)
-        if form.is_valid():
-            course = form.save(commit=False)
-            course.save()
-            messages.add_message(request, messages.SUCCESS,
-                                 "Course added!")
-            return HttpResponseRedirect(course.get_absolute_url())
-    return render(request, 'courses/course_form.html', {'form': form})
 
 
 @login_required

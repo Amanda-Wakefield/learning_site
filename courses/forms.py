@@ -3,17 +3,6 @@ from django import forms
 from . import models
 
 
-class CourseForm(forms.ModelForm):
-    class Meta:
-        model = models.Course
-        fields = [
-            'title',
-            'description',
-            'teacher',
-            'published',
-        ]
-
-
 class QuizForm(forms.ModelForm):
     class Meta:
         model = models.Quiz
@@ -30,7 +19,6 @@ class QuestionForm(forms.ModelForm):
         js = ('courses/js/vendor/jquery.fn.sortable.min.js',
               'courses/js/order.js'
               )
-
 
 
 class TrueFalseQuestionForm(QuestionForm):
