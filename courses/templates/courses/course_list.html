@@ -6,6 +6,7 @@
     <div class="row columns">
         {{ block.super }}
     </div>
+    <h2>{{ page_title }}</h2>
     <p>Total number of quizzes and steps: {{ total.total }}</p>
     <div class="row">
         {%  for course in courses %}

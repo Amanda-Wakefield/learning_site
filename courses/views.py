@@ -17,13 +17,14 @@ from . import mixins
 from . import models
 
 
-class CourseListView(ListView):
+class CourseListView(mixins.PageTitleMixin, ListView):
     context_object_name = "courses"
     queryset = models.Course.objects.filter(
         published=True
     ).annotate(
         total_steps=Count('text', distinct=True)+Count('quiz', distinct=True)
     )
+    page_title = "Current Courses"
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -230,7 +231,7 @@ def answer_form(request, question_pk):
     })
 
 
-class CoursesByTeacherView(ListView):
+class CoursesByTeacherView(mixins.PageTitleMixin, ListView):
     model = models.Course
     template_name = 'courses/course_list.html'
 
@@ -246,11 +247,15 @@ class CoursesByTeacherView(ListView):
         context["total"] = courses.aggregate(total=Sum('total_steps'))
         return context
 
+    def get_page_title(self):
+        page_title = 'Courses taught by {}'.format(self.kwargs.get('teacher'))
+        return page_title
 
 
-class Search(ListView):
+class Search(mixins.PageTitleMixin, ListView):
     model = models.Course
     template_name = 'courses/course_list.html'
+
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -264,3 +269,7 @@ class Search(ListView):
         context["courses"] = courses
         context["total"] = courses.aggregate(total=Sum('total_steps'))
         return context
+
+    def get_page_title(self):
+        page_title = 'Courses containing "{}"'.format(self.request.GET.get('q'))
+        return page_title
