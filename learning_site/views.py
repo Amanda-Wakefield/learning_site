@@ -6,6 +6,7 @@ from django.shortcuts import render
 from django.views.generic import View, TemplateView
 
 from . import forms
+from courses.models import Course
 
 
 #  This is my new class based view
@@ -15,10 +16,10 @@ class HelloWorldView(View):
 
 class HomeView(TemplateView):
     template_name = 'home.html'
-
+    queryset = Course.objects.filter(published=True)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["new_courses"] = 6
+        context["new_courses"] = self.queryset.count()
         return context
 
 
