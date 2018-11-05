@@ -5,24 +5,28 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Count, Sum
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render
+from django.views.generic import ListView, DetailView
+
 
 from . import forms
 from . import models
 
 
-# These are function based views
-def course_list(request):
-    courses = models.Course.objects.filter(
+class CourseListView(ListView):
+    context_object_name = "courses"
+    queryset = models.Course.objects.filter(
         published=True
     ).annotate(
         total_steps=Count('text', distinct=True)+Count('quiz', distinct=True)
     )
-    total = courses.aggregate(total=Sum('total_steps'))
-    return render(request, 'courses/course_list.html', {
-        'courses': courses,
-        'total':total
-    })
 
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["total"] = self.queryset.aggregate(total=Sum('total_steps'))
+        return context
+
+
+# These are function based views
 
 def course_detail(request, pk):
     try:
