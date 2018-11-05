@@ -1,5 +1,4 @@
 from django import forms
-from django.core import validators
 
 
 def must_be_empty(value):

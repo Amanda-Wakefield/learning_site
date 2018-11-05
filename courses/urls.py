@@ -6,7 +6,7 @@ from . import views
 urlpatterns = [
     path('', views.CourseListView.as_view(), name='list'),
     path('create_course/', views.CourseCreate.as_view(), name='course_create'),
-    path('<int:course_pk>/t<int:step_pk>/', views.text_detail, name='text'),
+    path('<int:course_pk>/t<int:step_pk>/', views.TextDetail.as_view(), name='text'),
     path('<int:course_pk>/q<int:step_pk>/', views.quiz_detail, name='quiz'),
     path('<int:course_pk>/create_quiz/', views.quiz_create, name='create_quiz'),
     path('<int:course_pk>/edit_quiz/<int:quiz_pk>', views.quiz_edit, name='edit_quiz'),

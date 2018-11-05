@@ -46,7 +46,7 @@ class Step(models.Model):
 
 
 class Text(Step):
-    content = models.TextField(blank=True, default='')
+    text_content = models.TextField(blank=True, default='')
     
     def get_absolute_url(self):
         return reverse('courses:text', kwargs={
