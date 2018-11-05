@@ -35,7 +35,7 @@ class CourseCreate(CreateView):
     fields = ("title", "description", "teacher", "subject", "status")
     model = models.Course
 
-# These are function based views
+'''These are function based views'''
 
 def course_detail(request, pk):
     try:
@@ -58,14 +58,9 @@ def course_detail(request, pk):
 class TextDetail(DetailView):
     model = models.Text
 
-
-
-# def text_detail(request, course_pk, step_pk):
-#     step = get_object_or_404(models.Text,
-#                              course_id=course_pk,
-#                              pk=step_pk,
-#                              course__published=True)
-#     return render(request, 'courses/text_detail.html', {'step': step})
+    def get_object(self, queryset=None):
+        obj = models.Text.objects.get(course_id=self.kwargs.get('course_id'), id=self.kwargs.get('step_id'))
+        return obj
 
 
 def quiz_detail(request, course_pk, step_pk):
