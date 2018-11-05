@@ -4,6 +4,27 @@ from datetime import date
 from . import models
 
 
+def make_published(modeladmin, request, queryset):
+    queryset.update(status='p', published=True)
+
+
+make_published.short_description = "Mark selected courses as Published"
+
+
+def make_in_review(modeladmin, request, queryset):
+    queryset.update(status='r', published=False)
+
+
+make_in_review.short_description = "Mark selected courses as In Review"
+
+
+def make_in_progress(modeladmin, request, queryset):
+    queryset.update(status='i', published=False)
+
+
+make_in_progress.short_description = "Mark selected courses as In Progress"
+
+
 class TextInLine(admin.StackedInline):
     model = models.Text
 
@@ -53,9 +74,11 @@ class CourseAdmin(admin.ModelAdmin):
 
     list_filter = ['created_at', 'published', YearListFilter]
 
-    list_display = ['title', 'created_at', 'published', 'time_to_complete']
+    list_display = ['title', 'created_at', 'published', 'time_to_complete', 'status']
 
-    list_editable = ['published']
+    list_editable = ['status']
+
+    actions = [make_published, make_in_review, make_in_progress]
 
     class Media:
         js = ('js/vendor/markdown.js', 'js/preview.js')
