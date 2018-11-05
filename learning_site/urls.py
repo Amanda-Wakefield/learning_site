@@ -28,10 +28,10 @@ if settings.DEBUG:
     ]
 
 urlpatterns += [
+    path('', views.HomeView.as_view(), name='home'),
     path('courses/',include(('courses.urls', 'courses'), namespace='courses')),
     path('suggest/', views.suggestion_view, name='suggestion'),
     path('admin/', admin.site.urls),
-    path('', views.hello_world, name='home'),
     path('hello/', views.HelloWorldView.as_view(), name='hello'),
 ]
 

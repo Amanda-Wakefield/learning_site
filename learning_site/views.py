@@ -3,22 +3,21 @@ from django.core.mail import send_mail
 from django.urls import reverse
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
-from django.views.generic import View
+from django.views.generic import View, TemplateView
 
 from . import forms
 
 
-# This is my new class based view
+#  This is my new class based view
 class HelloWorldView(View):
     def get(self, request):
         return HttpResponse("Hello World")
 
+class HomeView(TemplateView):
+    template_name = 'home.html'
+
 
 #  These are function based views
-def hello_world(request):
-    return render(request, 'home.html')
-
-
 def suggestion_view(request):
     form = forms.SuggestionForm()
     if request.method == 'POST':
