@@ -16,6 +16,11 @@ class HelloWorldView(View):
 class HomeView(TemplateView):
     template_name = 'home.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["new_courses"] = 6
+        return context
+
 
 #  These are function based views
 def suggestion_view(request):

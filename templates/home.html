@@ -5,6 +5,7 @@
 {% block content %}
     <div class="row">
         <h1>Welcome!</h1>
+        <p>There {{ new_courses|pluralize:"is,are" }} {{ new_courses }} new courses{{ new_courses|pluralize }} this week.</p>
         <a href="{% url 'courses:list' %}" class="link">Check out our latest courses</a>
     </div>
     <div class="row">
