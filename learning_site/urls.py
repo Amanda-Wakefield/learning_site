@@ -32,6 +32,7 @@ urlpatterns += [
     path('suggest/', views.suggestion_view, name='suggestion'),
     path('admin/', admin.site.urls),
     path('', views.hello_world, name='home'),
+    path('hello/', views.HelloWorldView.as_view(), name='hello'),
 ]
 
 urlpatterns += staticfiles_urlpatterns()

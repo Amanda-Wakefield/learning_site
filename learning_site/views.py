@@ -1,12 +1,20 @@
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.urls import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
+from django.views.generic import View
 
 from . import forms
 
 
+# This is my new class based view
+class HelloWorldView(View):
+    def get(self, request):
+        return HttpResponse("Hello World")
+
+
+#  These are function based views
 def hello_world(request):
     return render(request, 'home.html')
 

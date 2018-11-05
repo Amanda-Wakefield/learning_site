@@ -16,5 +16,4 @@ urlpatterns = [
     path('by/<str:teacher>/', views.courses_by_teacher, name='by_teacher'),
     path('search/', views.search, name='search'),
     path('<int:pk>/', views.course_detail, name='detail'),
-
 ]

@@ -10,6 +10,7 @@ from . import forms
 from . import models
 
 
+# These are function based views
 def course_list(request):
     courses = models.Course.objects.filter(
         published=True
