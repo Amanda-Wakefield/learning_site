@@ -7,7 +7,7 @@ from django.utils.decorators import method_decorator
 from django.db.models import Q, Count, Sum
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render
-from django.views.generic import(
+from django.views.generic import(View,
     ListView, DetailView,
     CreateView, UpdateView, DeleteView
 )
@@ -37,51 +37,63 @@ class CourseCreate(LoginRequiredMixin, mixins.PageTitleMixin, CreateView):
     model = models.Course
     page_title = "Create a new course"  # This page title can be set as static
 
+
+class CourseDetail(DetailView):
+    model = models.Course
+    template_name = 'courses/course_detail.html'
+
+    def get_context_data(self, **kwargs):
+        try:
+            course = models.Course.objects.prefetch_related(
+                'quiz_set',
+                'text_set',
+                'quiz_set__question_set'
+            ).get(
+                pk=self.kwargs.get('pk'),
+                published=True)
+        except models.Course.DoesNotExist:
+            raise Http404
+        else:
+            steps = sorted(chain(
+                course.text_set.all(),
+                course.quiz_set.all()
+            ), key=lambda step:step.order)
+        return {'course': course, 'steps': steps}
+
+
+class TextDetail(DetailView):
+    template_name = 'courses/text_detail.html'
+    context_object_name = 'step'
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(models.Text,
+                                 course_id=self.kwargs.get('course_pk'),
+                                 pk=self.kwargs.get('step_pk'),
+                                 course__published=True)
+
+
+class QuizDetail(DetailView):
+    template_name = 'courses/quiz_detail.html'
+    context_object_name = 'step'
+
+    def get_object(self, queryset=None):
+        try:
+            step = models.Quiz.objects.select_related(
+                'course'
+            ).prefetch_related(
+                'question_set',
+                'question_set__answer_set'
+            ).get(
+                course_id=self.kwargs.get('course_pk'),
+                pk=self.kwargs.get('step_pk'),
+                course__published=True
+            )
+        except models.Quiz.DoesNotExist:
+            raise Http404
+        else:
+            return step
+
 '''These are function based views'''
-
-def course_detail(request, pk):
-    try:
-        course = models.Course.objects.prefetch_related(
-            'quiz_set', 'text_set', 'quiz_set__question_set'
-        ).get(pk=pk, published=True)
-    except models.Course.DoesNotExist:
-        raise Http404
-    else:
-        steps = sorted(chain(
-            course.text_set.all(),
-            course.quiz_set.all()
-        ), key=lambda step: step.order)
-    return render(request, 'courses/course_detail.html', {
-            'course': course,
-            'steps': steps
-        })
-
-
-def text_detail(request, course_pk, step_pk):
-    step = get_object_or_404(models.Text,
-                             course_id=course_pk,
-                             pk=step_pk,
-                             course__published=True)
-    return render(request, 'courses/text_detail.html', {'step': step})
-
-
-def quiz_detail(request, course_pk, step_pk):
-    try:
-        step = models.Quiz.objects.select_related(
-            'course'
-        ).prefetch_related(
-            'question_set',
-            'question_set__answer_set'
-        ).get(
-            course_id=course_pk,
-            pk=step_pk,
-            course__published=True
-        )
-    except models.Quiz.DoesNotExist:
-        raise Http404
-    else:
-        return render(request, 'courses/quiz_detail.html', {'step': step})
-
 
 @login_required
 def quiz_create(request, course_pk):
