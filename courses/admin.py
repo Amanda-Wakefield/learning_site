@@ -12,7 +12,7 @@ class QuizInLine(admin.StackedInline):
     model = models.Quiz
 
 
-class AnswerInLine(admin.StackedInline):
+class AnswerInLine(admin.TabularInline):
     model = models.Answer
 
 
@@ -30,20 +30,21 @@ class YearListFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value() == '2018':
-            return( queryset.filter(created_at__gte=date(2018, 1, 1),
+            return(queryset.filter(created_at__gte=date(2018, 1, 1),
                                    created_at__lte=date(2018, 12, 31)))
 
         if self.value() == '2017':
-            return( queryset.filter(created_at__gte=date(2017, 1, 1),
+            return(queryset.filter(created_at__gte=date(2017, 1, 1),
                                    created_at__lte=date(2017, 12, 31)))
 
         if self.value() == '2016':
-            return( queryset.filter(created_at__gte=date(2016, 1, 1),
+            return(queryset.filter(created_at__gte=date(2016, 1, 1),
                                    created_at__lte=date(2016, 12, 31)))
 
         if self.value() == '2015':
-            return( queryset.filter(created_at__gte=date(2015, 1, 1),
+            return(queryset.filter(created_at__gte=date(2015, 1, 1),
                                    created_at__lte=date(2015, 12, 31)))
+
 
 class CourseAdmin(admin.ModelAdmin):
     inlines = [TextInLine, QuizInLine]
@@ -56,6 +57,12 @@ class CourseAdmin(admin.ModelAdmin):
 
     list_editable = ['published']
 
+    class Media:
+        js = ('js/vendor/markdown.js', 'js/preview.js')
+        css = {
+            'all': ('css/preview.css',),
+        }
+
 
 class QuestionAdmin(admin.ModelAdmin):
     inlines = [AnswerInLine, ]
@@ -65,6 +72,9 @@ class QuestionAdmin(admin.ModelAdmin):
     list_display = ['prompt', 'quiz', 'order']
 
     list_editable = ['quiz', 'order']
+
+    # radio_fields = {'quiz':admin.HORIZONTAL}  # this creates radio buttons
+
 
 class QuizAdmin(admin.ModelAdmin):
     fields = ['course', 'title', 'description', 'order', 'total_questions']
@@ -76,8 +86,21 @@ class AnswerAdmin(admin.ModelAdmin):
 
     list_display = ['question', 'text', 'correct']
 
+
+class TextAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {
+            'fields': ('course', 'title', 'order', 'description')
+        }),  # first is header and the
+        ('Add content', {
+            'fields': ('content',),
+            'classes': ('collapse',)
+                         })
+    )
+
+
 admin.site.register(models.Course, CourseAdmin)
-admin.site.register(models.Text)
+admin.site.register(models.Text, TextAdmin)
 admin.site.register(models.Quiz, QuizAdmin)
 admin.site.register(models.MultipleChoiceQuestion, QuestionAdmin)
 admin.site.register(models.TrueFalseQuestion, QuestionAdmin)
