@@ -2,6 +2,7 @@ from itertools import chain
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.decorators import method_decorator
 from django.db.models import Q, Count, Sum
 from django.http import HttpResponseRedirect, Http404
@@ -13,6 +14,7 @@ from django.views.generic import(
 
 
 from . import forms
+from . import mixins
 from . import models
 
 
@@ -30,10 +32,10 @@ class CourseListView(ListView):
         return context
 
 
-@method_decorator(login_required, name='dispatch')
-class CourseCreate(CreateView):
+class CourseCreate(LoginRequiredMixin, mixins.PageTitleMixin, CreateView):
     fields = ("title", "description", "teacher", "subject", "status")
     model = models.Course
+    page_title = "Create a new course"  # This page title can be set as static
 
 '''These are function based views'''
 
