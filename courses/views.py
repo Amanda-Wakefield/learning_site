@@ -7,10 +7,9 @@ from django.utils.decorators import method_decorator
 from django.db.models import Q, Count, Sum
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render
-from django.views.generic import(View,
-    ListView, DetailView,
-    CreateView, UpdateView, DeleteView
-)
+from django.views.generic import(View, ListView, DetailView,
+                                 CreateView, UpdateView, DeleteView
+                                 )
 
 
 from . import forms
@@ -93,7 +92,6 @@ class QuizDetail(DetailView):
         else:
             return step
 
-'''These are function based views'''
 
 @login_required
 def quiz_create(request, course_pk):
@@ -232,14 +230,37 @@ def answer_form(request, question_pk):
     })
 
 
-def courses_by_teacher(request, teacher):
-    courses = models.Course.objects.filter(teacher__username=teacher,
-                                           published=True)  # double underscore jumps from one relationship to another
-    return render(request,'courses/course_list.html', {'courses':courses})
+class CoursesByTeacherView(ListView):
+    model = models.Course
+    template_name = 'courses/course_list.html'
 
-def search(request):
-    term = request.GET.get('q')
-    courses = models.Course.objects.filter(
-        Q(title__icontains=term)|Q(description__icontains=term), # Q and | filters using or ie. title or description contains term
-        published=True)
-    return render(request,'courses/course_list.html', {'courses':courses})
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        courses = self.model.objects.filter(
+            teacher__username=self.kwargs.get('teacher'),
+            published=True
+        ).annotate(
+            total_steps=Count('text', distinct=True) + Count('quiz', distinct=True)
+        )
+        context["courses"] = courses
+        context["total"] = courses.aggregate(total=Sum('total_steps'))
+        return context
+
+
+
+class Search(ListView):
+    model = models.Course
+    template_name = 'courses/course_list.html'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        term = self.request.GET.get('q')
+        courses = self.model.objects.filter(
+            Q(title__icontains=term)|Q(description__icontains=term),
+            published=True
+        ).annotate(
+            total_steps=Count('text', distinct=True) + Count('quiz', distinct=True)
+        )
+        context["courses"] = courses
+        context["total"] = courses.aggregate(total=Sum('total_steps'))
+        return context

@@ -13,7 +13,7 @@ urlpatterns = [
     re_path(r'(?P<quiz_pk>\d+)/create_question/(?P<question_type>mc|tf)/$', views.create_question, name='create_question'),
     path('<int:quiz_pk>/edit_question/<int:question_pk>/', views.edit_question, name='edit_question'),
     path('<int:question_pk>/create_answer/', views.answer_form, name='create_answer'),
-    path('by/<str:teacher>/', views.courses_by_teacher, name='by_teacher'),
-    path('search/', views.search, name='search'),
+    path('by/<str:teacher>/', views.CoursesByTeacherView.as_view(), name='by_teacher'),
+    path('search/', views.Search.as_view(), name='search'),
     path('<int:pk>/', views.CourseDetail.as_view(), name='detail'),
 ]
