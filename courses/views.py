@@ -94,6 +94,50 @@ class QuizDetail(DetailView):
             return step
 
 
+class CoursesByTeacherView(mixins.PageTitleMixin, ListView):
+    model = models.Course
+    template_name = 'courses/course_list.html'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        courses = self.model.objects.filter(
+            teacher__username=self.kwargs.get('teacher'),
+            published=True
+        ).annotate(
+            total_steps=Count('text', distinct=True) + Count('quiz', distinct=True)
+        )
+        context["courses"] = courses
+        context["total"] = courses.aggregate(total=Sum('total_steps'))
+        return context
+
+    def get_page_title(self):
+        page_title = 'Courses taught by {}'.format(self.kwargs.get('teacher'))
+        return page_title
+
+
+class Search(mixins.PageTitleMixin, ListView):
+    model = models.Course
+    template_name = 'courses/course_list.html'
+
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        term = self.request.GET.get('q')
+        courses = self.model.objects.filter(
+            Q(title__icontains=term)|Q(description__icontains=term),
+            published=True
+        ).annotate(
+            total_steps=Count('text', distinct=True) + Count('quiz', distinct=True)
+        )
+        context["courses"] = courses
+        context["total"] = courses.aggregate(total=Sum('total_steps'))
+        return context
+
+    def get_page_title(self):
+        page_title = 'Courses containing "{}"'.format(self.request.GET.get('q'))
+        return page_title
+
+
 @login_required
 def quiz_create(request, course_pk):
     course = get_object_or_404(models.Course,
@@ -229,47 +273,3 @@ def answer_form(request, question_pk):
         'question': question,
         'formset': formset
     })
-
-
-class CoursesByTeacherView(mixins.PageTitleMixin, ListView):
-    model = models.Course
-    template_name = 'courses/course_list.html'
-
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data(**kwargs)
-        courses = self.model.objects.filter(
-            teacher__username=self.kwargs.get('teacher'),
-            published=True
-        ).annotate(
-            total_steps=Count('text', distinct=True) + Count('quiz', distinct=True)
-        )
-        context["courses"] = courses
-        context["total"] = courses.aggregate(total=Sum('total_steps'))
-        return context
-
-    def get_page_title(self):
-        page_title = 'Courses taught by {}'.format(self.kwargs.get('teacher'))
-        return page_title
-
-
-class Search(mixins.PageTitleMixin, ListView):
-    model = models.Course
-    template_name = 'courses/course_list.html'
-
-
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data(**kwargs)
-        term = self.request.GET.get('q')
-        courses = self.model.objects.filter(
-            Q(title__icontains=term)|Q(description__icontains=term),
-            published=True
-        ).annotate(
-            total_steps=Count('text', distinct=True) + Count('quiz', distinct=True)
-        )
-        context["courses"] = courses
-        context["total"] = courses.aggregate(total=Sum('total_steps'))
-        return context
-
-    def get_page_title(self):
-        page_title = 'Courses containing "{}"'.format(self.request.GET.get('q'))
-        return page_title
